@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -9,23 +9,32 @@
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
     <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
   </head>
-  <body>
+  <body class="pt-24 flex flex-col h-full">
     <header>
-      <section class="container">
-        <nav>
-          <ul>
-            <li><a href="https://hexdocs.pm/phoenix/overview.html">Get Started</a></li>
-            <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
-              <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>
-            <% end %>
-          </ul>
-          <%= render "_user_menu.html", assigns %>
-        </nav>
-        <a href="https://phoenixframework.org/" class="phx-logo">
-          <img src={Routes.static_path(@conn, "/images/phoenix.png")} alt="Phoenix Framework Logo"/>
-        </a>
-      </section>
+      <nav class="fixed top-0 left-0 right-0 z-30 bg-white shadow">
+        <div class="container mx-auto px-6 py-3 md:flex md:justify-between md:items-center">
+          <div class="flex justify-between items-center">
+            <div>
+              <a class="inline-block" href="/">
+                <img src={Routes.static_path(@conn, "/images/phoenix.png")} class="h-8 object-contain" />
+              </a>
+            </div>
+          </div>
+
+          <div class="flex items-center">
+            <div class="flex flex-col md:flex-row md:mx-6">
+              <a href="https://hexdocs.pm/phoenix/overview.html" class="my-1 text-sm text-gray-700 font-medium hover:text-indigo-500 md:mx-4 md:my-0">Get Started</a>
+              <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
+                <%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home),
+                    class: "my-1 text-sm text-gray-700 font-medium hover:text-indigo-500 md:mx-4 md:my-0" %>
+              <% end %>
+              <%= render "_user_menu.html", assigns %>
+            </div>
+          </div>
+        </div>
+      </nav>
     </header>
+
     <%= @inner_content %>
   </body>
 </html>

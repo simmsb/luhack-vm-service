@@ -1,26 +1,36 @@
-<h1>Log in</h1>
+<h2 class="text-2x1 font-bold">Log in</h2>
 
-<.form let={f} for={@conn} action={Routes.user_session_path(@conn, :create)} as={:user}>
+<div class="mt-8 max-w-md">
+  <.form let={f} for={@conn} action={Routes.user_session_path(@conn, :create)} as={:user}>
   <%= if @error_message do %>
     <div class="alert alert-danger">
       <p><%= @error_message %></p>
     </div>
   <% end %>
 
-  <%= label f, :username %>
-  <%= text_input f, :username, required: true %>
+  <label class="block form-field">
+    <%= label f, :username %>
+    <%= text_input f, :username, required: true %>
+  </label>
 
-  <%= label f, :password %>
-  <%= password_input f, :password, required: true %>
+  <label class="block form-field">
+    <%= label f, :password %>
+    <%= password_input f, :password, required: true %>
+  </label>
 
-  <%= label f, :remember_me, "Keep me logged in for 60 days" %>
-  <%= checkbox f, :remember_me %>
+  <label class="block">
+    <div class="mt-2">
+      <label class="inline-flex items-center">
+        <%= checkbox f, :remember_me, class: "rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50" %>
+        <%= label f, :remember_me, "Keep me logged in for 60 days", class: "ml-2" %>
+      </label>
+    </div>
+  </label>
 
-  <div>
+  <div class="flex space-x-2 justify-center">
     <%= submit "Log in" %>
+    <%= button "Register", class: "alt", method: :get, to: Routes.user_registration_path(@conn, :new) %>
   </div>
-</.form>
+  </.form>
+</div>
 
-<p>
-  <%= link "Register", to: Routes.user_registration_path(@conn, :new) %>
-</p>

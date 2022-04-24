@@ -10,6 +10,8 @@ defmodule LuhackVmService.Accounts do
 
   ## Database getters
 
+  def list_users, do: Repo.all(User)
+
   @doc """
   Gets a user by username.
 
@@ -59,6 +61,8 @@ defmodule LuhackVmService.Accounts do
 
   """
   def get_user!(id), do: Repo.get!(User, id)
+
+  def with_machine(%User{} = user), do: Repo.preload(user, :machine)
 
   ## User registration
 

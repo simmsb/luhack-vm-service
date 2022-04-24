@@ -1,0 +1,15 @@
+[package]
+name = "libvirt"
+version = "0.1.0"
+authors = []
+edition = "2021"
+
+[lib]
+name = "libvirt"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+roxmltree = "0.14.1"
+rustler = "0.25.0"
+virt = "0.2.11"

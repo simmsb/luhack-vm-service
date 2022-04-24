@@ -20,6 +20,47 @@ if System.get_env("PHX_SERVER") do
   config :luhack_vm_service, LuhackVmServiceWeb.Endpoint, server: true
 end
 
+xml_file = System.get_env("LUHACK_XML_FILE") ||
+      raise """
+      environment variable LUHACK_XML_FILE is missing.
+      point this to domain xml file
+      """
+
+if !File.exists?(xml_file) do
+  raise """
+  The LUHACK_XML_FILE #{xml_file} doesn't seem to exist
+  """
+end
+
+base_image = System.get_env("LUHACK_BASE_IMAGE") ||
+      raise """
+      environment variable LUHACK_BASE_IMAGE is missing.
+      point this to the vm base image
+      """
+
+if !File.exists?(base_image) do
+  raise """
+  The LUHACK_BASE_IMAGE #{base_image} doesn't seem to exist
+  """
+end
+
+image_dir = System.get_env("LUHACK_IMAGE_DIR") ||
+      raise """
+      environment variable LUHACK_IMAGE_DIR is missing.
+      point this to a directory to place images
+      """
+
+if !File.exists?(image_dir) do
+  raise """
+  The LUHACK_IMAGE_DIR #{image_dir} doesn't seem to exist
+  """
+end
+
+config :luhack_vm_service, LuhackVmService.LibVirt.Config,
+  xml_file: xml_file,
+  base_image: base_image,
+  image_dir: image_dir
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||

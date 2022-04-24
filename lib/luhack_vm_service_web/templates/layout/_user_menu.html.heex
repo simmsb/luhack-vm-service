@@ -1,9 +1,9 @@
-<ul>
 <%= if @current_user do %>
-  <li><%= @current_user.username %></li>
-  <li><%= link "Log out", to: Routes.user_session_path(@conn, :delete), method: :delete %></li>
+  <span class="my-1 text-sm text-gray-700 font-medium hover:text-indigo-500 md:mx-4 md:my-0">
+    <%= @current_user.username %>
+  </span>
+  <%= link "Log out", class: "my-1 text-sm text-gray-700 font-medium hover:text-indigo-500 md:mx-4 md:my-0", to: Routes.user_session_path(@conn, :delete), method: :delete %>
 <% else %>
-  <li><%= link "Register", to: Routes.user_registration_path(@conn, :new) %></li>
-  <li><%= link "Log in", to: Routes.user_session_path(@conn, :new) %></li>
+  <%= link "Register", class: "my-1 text-sm text-gray-700 font-medium hover:text-indigo-500 md:mx-4 md:my-0", to: Routes.user_registration_path(@conn, :new) %>
+  <%= link "Log in", class: "my-1 text-sm text-gray-700 font-medium hover:text-indigo-500 md:mx-4 md:my-0", to: Routes.user_session_path(@conn, :new) %>
 <% end %>
-</ul>

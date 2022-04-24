@@ -1,25 +1,31 @@
-<h1>Register</h1>
+<h2 class="text-2x1 font-bold">Register</h2>
 
-<.form let={f} for={@changeset} action={Routes.user_registration_path(@conn, :create)}>
+<div class="mt-8 max-w-md">
+  <.form let={f} for={@changeset} action={Routes.user_registration_path(@conn, :create)}>
   <%= if @changeset.action do %>
-    <div class="alert alert-danger">
-      <p>Oops, something went wrong! Please check the errors below.</p>
+    <div role="alert">
+      <div class="border border-red-400 rounded-b bg-red-100 px-4 py-3">
+        <p>Oops, something went wrong! Please check the errors below.</p>
+      </div>
     </div>
   <% end %>
 
-  <%= label f, :username %>
-  <%= text_input f, :username, required: true %>
-  <%= error_tag f, :username %>
+  <label class="block form-field">
+    <%= label f, :username %>
+    <%= text_input f, :username, required: true %>
+    <%= error_tag f, :username %>
+  </label>
 
-  <%= label f, :password %>
-  <%= password_input f, :password, required: true %>
-  <%= error_tag f, :password %>
+  <label class="block form-field">
+    <%= label f, :password %>
+    <%= password_input f, :password, required: true %>
+    <%= error_tag f, :password %>
+  </label>
 
-  <div>
+  <div class="flex space-x-2 justify-center">
     <%= submit "Register" %>
+    <%= button "Log in", class: "alt", method: :get, to: Routes.user_session_path(@conn, :new) %>
   </div>
-</.form>
+  </.form>
+</div>
 
-<p>
-  <%= link "Log in", to: Routes.user_session_path(@conn, :new) %>
-</p>

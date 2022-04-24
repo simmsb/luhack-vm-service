@@ -84,10 +84,27 @@ defmodule LuhackVmServiceWeb do
     end
   end
 
+  defmodule FormHelpers do
+    def label(form, field) when is_atom(field) or is_binary(field) do
+      label(form, field, Phoenix.HTML.Form.humanize(field), [])
+    end
+
+    def label(form, field, text, opts) when is_list(opts) do
+      opts = Keyword.put_new(opts, :for, Phoenix.HTML.Form.input_id(form, field))
+      Phoenix.HTML.Tag.content_tag(:span, text, opts)
+    end
+  end
+
   defp view_helpers do
     quote do
       # Use all HTML functionality (forms, tags, etc)
-      use Phoenix.HTML
+      import Phoenix.HTML
+      import Phoenix.HTML.Form, except: [label: 2, label: 4]
+      import Phoenix.HTML.Link
+      import Phoenix.HTML.Tag, except: [attributes_escape: 1]
+      import Phoenix.HTML.Format
+
+      import LuhackVmServiceWeb.FormHelpers
 
       # Import LiveView and .heex helpers (live_render, live_patch, <.form>, etc)
       import Phoenix.LiveView.Helpers

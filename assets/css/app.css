@@ -1,8 +1,34 @@
 @import "tailwindcss/base";
-@import "tailwindcss/components";
+@import "tailwindcss/forms";
 @import "tailwindcss/utilities";
+@import "tailwindcss/components";
 
 /* This file is for your main application CSS */
+@layer components {
+  form {
+    @apply grid grid-cols-1 gap-6;
+  }
+
+  .form-field span {
+    @apply text-gray-700;
+  }
+
+  .form-field input {
+    @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50;
+  }
+
+  form button[type="submit"] {
+    @apply inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
+  }
+
+  form button.alt {
+    @apply inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-gray-900 bg-white border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
+  }
+
+  span.invalid-feedback {
+    @apply flex items-center font-medium tracking-wide text-red-500 text-xs mt-1 ml-1;
+  }
+}
 
 /* Alerts and form errors used by phx.new */
 .alert {

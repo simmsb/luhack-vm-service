@@ -49,7 +49,9 @@ defmodule LuhackVmService.MixProject do
       {:gettext, "~> 0.18"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
-      {:tailwind, "~> 0.1", runtime: Mix.env() == :dev}
+      {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
+      {:rustler, "~> 0.25.0"},
+      {:typed_ecto_schema, "~> 0.4.0", runtime: false}
     ]
   end
 
