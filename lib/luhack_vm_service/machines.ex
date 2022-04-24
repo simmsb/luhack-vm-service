@@ -40,7 +40,8 @@ defmodule LuhackVmService.Machines do
 
   def get_machine_by_uuid(uuid), do: Repo.get_by!(Machine, uuid: uuid)
 
-  def get_machine_for_user(%User{} = user), do: Repo.one!(Ecto.assoc(user, :machine))
+  @spec get_machine_for_user(User.t()) :: Machine.t() | nil
+  def get_machine_for_user(%User{} = user), do: Repo.one(Ecto.assoc(user, :machine))
 
   @doc """
   Creates a machine.

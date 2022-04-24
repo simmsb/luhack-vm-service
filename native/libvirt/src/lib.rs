@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use rustler::types::atom::ok;
+use rustler::types::atom::ok as atom_ok;
 use rustler::{Atom, NifResult};
 use virt::connect::Connect;
 
@@ -33,6 +33,12 @@ fn connect() -> NifResult<Connect> {
     Err(virt_to_nifresult(err))
 }
 
+type LibResult<T> = NifResult<(Atom, T)>;
+
+fn ok<T>(x: T) -> LibResult<T> {
+    Ok((atom_ok(), x))
+}
+
 #[derive(Debug, rustler::NifStruct)]
 #[rustler(encode)]
 #[module = "LuhackVmService.LibVirt.Domain"]
@@ -40,6 +46,37 @@ struct Domain {
     id: Option<u32>,
     name: String,
     uuid: String,
+    state: DomainState,
+}
+
+#[derive(Debug, rustler::NifUnitEnum)]
+#[rustler(encode)]
+enum DomainState {
+    NoState,
+    Running,
+    Blocked,
+    Paused,
+    ShutDown,
+    ShutOff,
+    Crashed,
+    PMSuspended,
+    Unknown,
+}
+
+impl From<virt::domain::DomainState> for DomainState {
+    fn from(state: virt::domain::DomainState) -> Self {
+        match state {
+            virt::domain::VIR_DOMAIN_NOSTATE => DomainState::NoState,
+            virt::domain::VIR_DOMAIN_RUNNING => DomainState::Running,
+            virt::domain::VIR_DOMAIN_BLOCKED => DomainState::Blocked,
+            virt::domain::VIR_DOMAIN_PAUSED => DomainState::Paused,
+            virt::domain::VIR_DOMAIN_SHUTDOWN => DomainState::ShutDown,
+            virt::domain::VIR_DOMAIN_SHUTOFF => DomainState::ShutOff,
+            virt::domain::VIR_DOMAIN_CRASHED => DomainState::Crashed,
+            virt::domain::VIR_DOMAIN_PMSUSPENDED => DomainState::PMSuspended,
+            _ => DomainState::Unknown,
+        }
+    }
 }
 
 impl TryFrom<virt::domain::Domain> for Domain {
@@ -49,13 +86,20 @@ impl TryFrom<virt::domain::Domain> for Domain {
         let id = dom.get_id();
         let name = dom.get_name().map_err(virt_to_nifresult)?;
         let uuid = dom.get_uuid_string().map_err(virt_to_nifresult)?;
+        let (state, _) = dom.get_state().map_err(virt_to_nifresult)?;
+        let state = DomainState::from(state);
 
-        Ok(Domain { id, name, uuid })
+        Ok(Domain {
+            id,
+            name,
+            uuid,
+            state,
+        })
     }
 }
 
 #[rustler::nif]
-fn list_doms() -> NifResult<Vec<Domain>> {
+fn list_doms() -> LibResult<Vec<Domain>> {
     let mut conn = connect()?;
 
     let flags = virt::connect::VIR_CONNECT_LIST_DOMAINS_ACTIVE
@@ -70,11 +114,11 @@ fn list_doms() -> NifResult<Vec<Domain>> {
 
     conn.close().map_err(virt_to_nifresult)?;
 
-    Ok(doms)
+    ok(doms)
 }
 
 #[rustler::nif]
-fn get_dom(uuid: &str) -> NifResult<Domain> {
+fn get_dom(uuid: &str) -> LibResult<Domain> {
     let mut conn = connect()?;
 
     let dom = virt::domain::Domain::lookup_by_uuid_string(&conn, uuid)
@@ -83,7 +127,7 @@ fn get_dom(uuid: &str) -> NifResult<Domain> {
 
     conn.close().map_err(virt_to_nifresult)?;
 
-    Ok(dom)
+    ok(dom)
 }
 
 #[rustler::nif]
@@ -97,7 +141,7 @@ fn start_dom(uuid: &str) -> NifResult<Atom> {
 
     conn.close().map_err(virt_to_nifresult)?;
 
-    Ok(ok())
+    Ok(atom_ok())
 }
 
 #[rustler::nif]
@@ -111,7 +155,7 @@ fn stop_dom(uuid: &str) -> NifResult<Atom> {
 
     conn.close().map_err(virt_to_nifresult)?;
 
-    Ok(ok())
+    Ok(atom_ok())
 }
 
 #[rustler::nif]
@@ -126,11 +170,11 @@ fn delete_dom(uuid: &str) -> NifResult<Atom> {
 
     conn.close().map_err(virt_to_nifresult)?;
 
-    Ok(ok())
+    Ok(atom_ok())
 }
 
 #[rustler::nif]
-fn get_dom_vnc_port(uuid: &str) -> NifResult<u16> {
+fn get_dom_vnc_port(uuid: &str) -> LibResult<u16> {
     let mut conn = connect()?;
 
     let dom =
@@ -150,7 +194,7 @@ fn get_dom_vnc_port(uuid: &str) -> NifResult<u16> {
     if port < 0 {
         Err(rustler::Error::Term(Box::new("no_port_allocated")))
     } else {
-        Ok(port as u16)
+        ok(port as u16)
     }
 }
 

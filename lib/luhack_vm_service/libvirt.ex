@@ -6,10 +6,10 @@ defmodule LuhackVmService.LibVirt do
     otp_app: :luhack_vm_service,
     crate: :libvirt
 
-  @spec list_doms() :: [LuhackVmService.LibVirt.Domain] | {:error, {:libvirt, binary()}}
+  @spec list_doms() :: {:ok, [LuhackVmService.LibVirt.Domain]} | {:error, {:libvirt, binary()}}
   def list_doms(), do: :erlang.nif_error(:nif_not_loaded)
 
-  @spec get_dom(String.t()) :: LuhackVmService.LibVirt.Domain | {:error, {:libvirt, String.t()}}
+  @spec get_dom(String.t()) :: {:ok, LuhackVmService.LibVirt.Domain} | {:error, {:libvirt, String.t()}}
   def get_dom(_uuid), do: :erlang.nif_error(:nif_not_loaded)
 
   @spec start_dom(String.t()) :: :ok | {:error, {:libvirt, String.t()}}
@@ -22,8 +22,8 @@ defmodule LuhackVmService.LibVirt do
   def delete_dom(_uuid), do: :erlang.nif_error(:nif_not_loaded)
 
   @spec get_dom_vnc_port(String.t()) ::
-          integer() | {:error, {:libvirt, String.t()} | :no_port_allocated | atom()}
-  def get_dom_vnc_port(_uuid), do: :erlang.nif_error(:nif_not_loaded)
+          {:ok, integer()} | {:error, {:libvirt, String.t()} | :no_port_allocated | atom()}
+  defp get_dom_vnc_port(_uuid), do: :erlang.nif_error(:nif_not_loaded)
 
   defp make_vm_name(uuid) do
     "luhack_kali_vm_" <> uuid
@@ -34,16 +34,23 @@ defmodule LuhackVmService.LibVirt do
 
   defp do_get_dom_vnc_port(uuid, retry) do
     case get_dom_vnc_port(uuid) do
+      {:ok, port} ->
+        {:ok, port}
       {:error, :no_port_allocated} ->
         Process.sleep(1000)
         do_get_dom_vnc_port(uuid, retry - 1)
 
       {:error, e} ->
         {:error, e}
-
-      port ->
-        {:ok, port}
     end
+  end
+
+  @spec vnc_port_of(Machine.t()) :: {:ok, integer()} | {:error, any()}
+  def vnc_port_of(%Machine{} = machine), do: do_get_dom_vnc_port(machine.uuid)
+
+  @spec start_machine_nowait(Machine.t()) :: :ok | {:error, any()}
+  def start_machine_nowait(%Machine{} = machine) do
+    start_dom(machine.uuid)
   end
 
   @spec start_machine(Machine.t()) :: {:ok, integer()} | {:error, any()}
@@ -61,10 +68,11 @@ defmodule LuhackVmService.LibVirt do
 
   @spec delete_machine(Machine.t()) :: :ok | {:error, any()}
   def delete_machine(%Machine{} = machine) do
-    with :ok <- delete_dom(machine.uuid),
-         File.rm(machine.image_path) do
-      :ok
-    end
+    delete_dom(machine.uuid)
+    Machines.delete_machine(machine)
+    File.rm(machine.image_path)
+
+    :ok
   end
 
   @spec create_machine_for(User.t()) :: {:ok, Machine.t()} | {:error, any()}

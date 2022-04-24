@@ -51,7 +51,8 @@ defmodule LuhackVmService.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:rustler, "~> 0.25.0"},
-      {:typed_ecto_schema, "~> 0.4.0", runtime: false}
+      {:typed_ecto_schema, "~> 0.4.0", runtime: false},
+      {:muontrap, "~> 1.0"}
     ]
   end
 

@@ -62,6 +62,7 @@ defmodule LuhackVmService.Accounts do
   """
   def get_user!(id), do: Repo.get!(User, id)
 
+  @spec with_machine(User.t()) :: User.t()
   def with_machine(%User{} = user), do: Repo.preload(user, :machine)
 
   ## User registration

@@ -1,5 +1,22 @@
-<h1>Test</h1>
+<div>
+  <%= if @current_user.machine do %>
+    <%= if @machine_state && @machine_state.state == :running do %>
+      <button class="normal-btn" phx-click="restart">Restart</button>
+      <button class="normal-btn" phx-click="shut_down">Shut down</button>
+    <% end %>
+    <button class="danger-btn" phx-click="delete" data-confirm="This will delete the machine and allow you to create a new one, are you sure?">Delete</button>
+  <% end %>
+  <%= if !@current_user.machine || !@machine_state || @machine_state.state != :running do %>
+    <div class="flex items-center justify-center">
+      <button class="normal-btn" phx-click="start_or_create">Start Kali</button>
+    </div>
+  <% end %>
 
-Username: <%= @current_user.username %>
-<br/>
-Machine: <%= @current_user.machine.uuid %>
+  <div class="mx-auto drop-shadow-lg m-4">
+    <%= if @vnc_addr do %>
+      <div class="iframe-container">
+        <iframe class="w-11/12" src={@vnc_addr} frameborder="0" scrolling="no" onload="this.style.height=this.contentWindow.document.body.scrollHeight+'px';" allowfullscreen></iframe>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -32,3 +32,6 @@ luhack_vm_service-*.tar
 npm-debug.log
 /assets/node_modules/
 
+/node_modules/
+/package-lock.json
+/package.json
