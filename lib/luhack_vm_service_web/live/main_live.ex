@@ -49,37 +49,12 @@ defmodule LuhackVmServiceWeb.MainLive do
     |> assign(current_user: user, machine_state: machine_state)
   end
 
-  # this is a hack, ideally we'd do the proxying ourselves
-  # we'd then also be able to eliminate vnc passwords, as we'd just authenticate in the websocket
-  defp generate_listen_port() do
-    {:ok, port} = :gen_tcp.listen(0, [])
-    {:ok, port_number} = :inet.port(port)
-    Port.close(port)
-
-    port_number
-  end
-
   defp do_novnc_stuff(socket, _uuid, _vnc_password) when socket.assigns.vnc_addr != nil do
     socket
   end
 
   defp do_novnc_stuff(socket, uuid, vnc_password) do
     socket = stop_vnc_session(socket)
-
-    listen_port = generate_listen_port()
-
-    Logger.info("Got listen port: #{listen_port}")
-
-    # {:ok, pid} =
-    #   Supervisor.start_link([{LuhackVmService.VncWorker, [vnc_port, listen_port]}],
-    #     strategy: :one_for_one
-    #   )
-
-    # give the vnc proxy a while to start up
-    # Process.sleep(300)
-
-    IO.inspect(Routes.static_url(socket, "/novnc/vnc.html"))
-    IO.inspect(Routes.static_url(socket, "/assets/app.css"))
 
     token = Phoenix.Token.sign(LuhackVmServiceWeb.Endpoint, "vnc auth", uuid)
 

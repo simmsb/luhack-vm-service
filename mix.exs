@@ -52,7 +52,7 @@ defmodule LuhackVmService.MixProject do
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:rustler, "~> 0.25.0"},
       {:typed_ecto_schema, "~> 0.4.0", runtime: false},
-      {:muontrap, "~> 1.0"}
+      {:circular_buffer, "~> 0.4"}
     ]
   end
 

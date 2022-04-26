@@ -56,6 +56,15 @@ if !File.exists?(image_dir) do
   """
 end
 
+admin_pass = System.get_env("ADMIN_PASS") ||
+      raise """
+      environment variable ADMIN_PASS is missing.
+      set this to a password for the admin interface
+      """
+
+config :luhack_vm_service, LuhackVmServiceWeb.Router,
+  admin_pass: admin_pass
+
 config :luhack_vm_service, LuhackVmService.LibVirt.Config,
   xml_file: xml_file,
   base_image: base_image,
