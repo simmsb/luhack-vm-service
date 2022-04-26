@@ -13,9 +13,18 @@ fuck off.
 ## System requirements
 
 - libvirt (virsh)
-- novnc
 - postgres
 
+### Docker requirements
+
+You still need libvirt on the host if running the container, because getting
+nested libvirt to work is a PITA. But you don't need to set up postgres at least.
+
+- $LUHACK_IMAGE_DIR should be a path that is the same on the host and in the
+  container, and should be readable/writeable to the system libvirt daemon.
+
+- $LUHACK_XML_FILE and $LUHACK_IMAGE_BASE should be files at the same location
+  on the host and in the container.
 
 ## Phoenix stuff
 

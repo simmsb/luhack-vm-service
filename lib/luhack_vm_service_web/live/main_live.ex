@@ -3,7 +3,7 @@ defmodule LuhackVmServiceWeb.MainLive do
 
   require Logger
 
-  alias LuhackVmService.{Machines, Repo, LibVirt}
+  alias LuhackVmService.{Machines, Repo, LibVirt, Accounts.UserToken}
   alias LuhackVmService.Accounts
 
   @impl true
@@ -12,7 +12,7 @@ defmodule LuhackVmServiceWeb.MainLive do
 
     socket =
       socket
-      |> assign(current_user: user, vnc_addr: nil, vnc_pid: nil)
+      |> assign(current_user: user, vnc_addr: nil)
       |> refresh_machine()
 
     :timer.send_interval(1000, self(), :tick)
@@ -40,11 +40,7 @@ defmodule LuhackVmServiceWeb.MainLive do
 
     socket =
       if machine_state && machine_state.state == :running do
-        with {:ok, port} <- LibVirt.vnc_port_of(user.machine) do
-          do_novnc_stuff(socket, port, user.machine.vnc_password)
-        else
-          _ -> socket
-        end
+        do_novnc_stuff(socket, machine_state.uuid, user.machine.vnc_password)
       else
         socket
       end
@@ -63,35 +59,42 @@ defmodule LuhackVmServiceWeb.MainLive do
     port_number
   end
 
-  defp do_novnc_stuff(socket, _vnc_port, _password) when socket.assigns.vnc_addr != nil do
+  defp do_novnc_stuff(socket, _uuid, _vnc_password) when socket.assigns.vnc_addr != nil do
     socket
   end
 
-  defp do_novnc_stuff(socket, vnc_port, vnc_password) do
+  defp do_novnc_stuff(socket, uuid, vnc_password) do
     socket = stop_vnc_session(socket)
 
     listen_port = generate_listen_port()
 
     Logger.info("Got listen port: #{listen_port}")
 
-    {:ok, pid} =
-      Supervisor.start_link([{LuhackVmService.VncWorker, [vnc_port, listen_port]}],
-        strategy: :one_for_one
-      )
+    # {:ok, pid} =
+    #   Supervisor.start_link([{LuhackVmService.VncWorker, [vnc_port, listen_port]}],
+    #     strategy: :one_for_one
+    #   )
 
     # give the vnc proxy a while to start up
-    Process.sleep(300)
+    # Process.sleep(300)
+
+    IO.inspect(Routes.static_url(socket, "/novnc/vnc.html"))
+    IO.inspect(Routes.static_url(socket, "/assets/app.css"))
+
+    token = Phoenix.Token.sign(LuhackVmServiceWeb.Endpoint, "vnc auth", uuid)
+
+    vnc_uri =
+      Routes.static_url(socket, "/novnc/vnc.html")
+      |> URI.parse()
 
     vnc_addr =
-      Routes.url(socket)
-      |> URI.parse()
-      |> Map.put(:port, listen_port)
-      |> Map.put(:path, "/vnc.html")
+      vnc_uri
       |> Map.put(
         :query,
         URI.encode_query(%{
-          host: "localhost",
-          port: listen_port,
+          host: vnc_uri.host,
+          port: vnc_uri.port,
+          path: "/vnc/websocket?token=#{token}",
           password: vnc_password,
           autoconnect: true,
           reconnect: true,
@@ -103,16 +106,12 @@ defmodule LuhackVmServiceWeb.MainLive do
     Logger.info("Generated vnc addr: #{vnc_addr}")
 
     socket
-    |> assign(vnc_addr: vnc_addr, vnc_pid: pid)
+    |> assign(vnc_addr: vnc_addr)
   end
 
   defp stop_vnc_session(socket) do
-    with pid when pid != nil <- socket.assigns.vnc_pid do
-      Supervisor.stop(pid)
-    end
-
     socket
-    |> assign(vnc_addr: nil, vnc_pid: nil)
+    |> assign(vnc_addr: nil)
   end
 
   @impl true

@@ -18,5 +18,4 @@ run:
 release: 
   docker tag {{app_name}}:latest ghcr.io/simmsb/luhack-vm-service:latest
   docker tag {{app_name}}:{{app_vsn}}-{{build}} ghcr.io/simmsb/luhack-vm-service:{{app_vsn}}-{{build}}
-  docker push ghcr.io/lancaster-university/luhack-vm-service 
   docker push ghcr.io/simmsb/luhack-vm-service

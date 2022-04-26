@@ -45,8 +45,8 @@ defmodule LuhackVmService.LibVirt do
     end
   end
 
-  @spec vnc_port_of(Machine.t()) :: {:ok, integer()} | {:error, any()}
-  def vnc_port_of(%Machine{} = machine), do: do_get_dom_vnc_port(machine.uuid)
+  @spec vnc_port_of(String.t()) :: {:ok, integer()} | {:error, any()}
+  def vnc_port_of(uuid), do: do_get_dom_vnc_port(uuid)
 
   @spec start_machine_nowait(Machine.t()) :: :ok | {:error, any()}
   def start_machine_nowait(%Machine{} = machine) do
@@ -88,6 +88,11 @@ defmodule LuhackVmService.LibVirt do
            System.cmd(
              "qemu-img",
              ~w(create -b #{config[:base_image]} -F qcow2 -f qcow2 #{image_path})
+           ),
+         {_, 0} <-
+           System.cmd(
+             "chmod",
+             ~w(o+rw #{image_path})
            ),
          {_, 0} <-
            System.cmd(

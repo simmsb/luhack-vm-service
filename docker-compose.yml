@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  db:
+    image: "postgres:13"
+    restart: always
+    volumes:
+      - db_data:/var/lib/postgresql/data/
+        #- ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=luhack_vm_service
+    ports:
+      - 127.0.0.1:6432:5432
+    # networks:
+    #   - db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  site:
+    image: luhack_vm_service:latest
+    restart: always
+    privileged: true
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@localhost:6432/luhack_vm_service
+      # - LUHACK_XML_FILE=/data/kali_luhack.xml
+      # - LUHACK_BASE_IMAGE=/data/kali_luhack.qcow2
+      # - LUHACK_IMAGE_DIR=/instances
+    volumes:
+      - $LUHACK_IMAGE_DIR:$LUHACK_IMAGE_DIR # instances:/instances
+      - $LUHACK_XML_FILE:$LUHACK_XML_FILE # :/data/kali_luhack.xml
+      - $LUHACK_BASE_IMAGE:$LUHACK_BASE_IMAGE # /data/kali_luhack.qcow2
+      - /var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock
+    network_mode: host
+    # networks:
+    #   - db
+    command: /bin/sh -c '/app/bin/migrate && /app/bin/server'
+
+# networks:
+  # db:
+
+volumes:
+  # instances:
+  db_data:
