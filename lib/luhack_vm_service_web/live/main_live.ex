@@ -15,7 +15,7 @@ defmodule LuhackVmServiceWeb.MainLive do
       |> assign(current_user: user, vnc_addr: nil)
       |> refresh_machine()
 
-    :timer.send_interval(1000, self(), :tick)
+    :timer.send_interval(5000, self(), :tick)
 
     {:ok, socket}
   end
@@ -29,6 +29,10 @@ defmodule LuhackVmServiceWeb.MainLive do
     user =
       Repo.reload(socket.assigns.current_user)
       |> Accounts.with_machine()
+
+    if user.machine do
+      Machines.touch_machine(user.machine)
+    end
 
     machine_state =
       user.machine &&

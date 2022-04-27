@@ -50,11 +50,13 @@ defmodule LuhackVmService.LibVirt do
 
   @spec start_machine_nowait(Machine.t()) :: :ok | {:error, any()}
   def start_machine_nowait(%Machine{} = machine) do
+    Machines.touch_machine(machine)
     start_dom(machine.uuid)
   end
 
   @spec start_machine(Machine.t()) :: {:ok, integer()} | {:error, any()}
   def start_machine(%Machine{} = machine) do
+    Machines.touch_machine(machine)
     with start_dom(machine.uuid),
          {:ok, port} <- do_get_dom_vnc_port(machine.uuid) do
       {:ok, port}
@@ -63,6 +65,7 @@ defmodule LuhackVmService.LibVirt do
 
   @spec stop_machine(Machine.t()) :: :ok | {:error, any()}
   def stop_machine(%Machine{} = machine) do
+    Machines.touch_machine(machine)
     stop_dom(machine.uuid)
   end
 

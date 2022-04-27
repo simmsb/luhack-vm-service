@@ -15,9 +15,10 @@ defmodule LuhackVmService.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: LuhackVmService.PubSub},
       # Start the Endpoint (http/https)
-      LuhackVmServiceWeb.Endpoint
+      LuhackVmServiceWeb.Endpoint,
       # Start a worker by calling: LuhackVmService.Worker.start_link(arg)
       # {LuhackVmService.Worker, arg}
+      LuhackVmService.Scheduler
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

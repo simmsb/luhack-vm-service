@@ -17,6 +17,12 @@ config :luhack_vm_service, LuhackVmServiceWeb.Endpoint,
   pubsub_server: LuhackVmService.PubSub,
   live_view: [signing_salt: "r9WGQGmj"]
 
+config :luhack_vm_service, LuhackVmService.Scheduler,
+  jobs: [
+    {"@daily", {LuhackVmService.Jobs, :delete_unused, []}},
+    {"*/10 * * * *", {LuhackVmService.Jobs, :stop_inactive, []}}
+  ]
+
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.14.29",

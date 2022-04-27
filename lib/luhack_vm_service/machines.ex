@@ -95,6 +95,10 @@ defmodule LuhackVmService.Machines do
     Repo.delete(machine)
   end
 
+  def touch_machine(%Machine{} = machine) do
+    update_machine(machine, %{last_used: DateTime.utc_now()})
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking machine changes.
 
@@ -106,5 +110,17 @@ defmodule LuhackVmService.Machines do
   """
   def change_machine(%Machine{} = machine, attrs \\ %{}) do
     Machine.changeset(machine, attrs)
+  end
+
+  def inactive_machines do
+    Machine
+    |> where([m], m.last_used < datetime_add(^DateTime.utc_now(), -10, "minute"))
+    |> Repo.all()
+  end
+
+  def unused_machines do
+    Machine
+    |> where([m], m.last_used < datetime_add(^DateTime.utc_now(), -1, "month"))
+    |> Repo.all()
   end
 end
