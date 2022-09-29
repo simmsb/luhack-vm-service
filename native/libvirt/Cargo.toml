@@ -10,6 +10,6 @@ path = "src/lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-roxmltree = "0.14.1"
-rustler = "0.25.0"
+roxmltree = "0.15"
+rustler = "0.26.0"
 virt = "0.2.11"
