@@ -10,6 +10,8 @@ defmodule LuhackVmServiceWeb.Endpoint do
     signing_salt: "yryhyQum"
   ]
 
+  plug Plug.RewriteOn, [:x_forwarded_host, :x_forwarded_port, :x_forwarded_proto]
+
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
   socket "/vnc", LuhackVmServiceWeb.VncSocket, websocket: true
 

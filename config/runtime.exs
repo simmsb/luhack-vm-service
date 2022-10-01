@@ -20,11 +20,12 @@ if System.get_env("PHX_SERVER") do
   config :luhack_vm_service, LuhackVmServiceWeb.Endpoint, server: true
 end
 
-xml_file = System.get_env("LUHACK_XML_FILE") ||
-      raise """
-      environment variable LUHACK_XML_FILE is missing.
-      point this to domain xml file
-      """
+xml_file =
+  System.get_env("LUHACK_XML_FILE") ||
+    raise """
+    environment variable LUHACK_XML_FILE is missing.
+    point this to domain xml file
+    """
 
 if !File.exists?(xml_file) do
   raise """
@@ -32,11 +33,12 @@ if !File.exists?(xml_file) do
   """
 end
 
-base_image = System.get_env("LUHACK_BASE_IMAGE") ||
-      raise """
-      environment variable LUHACK_BASE_IMAGE is missing.
-      point this to the vm base image
-      """
+base_image =
+  System.get_env("LUHACK_BASE_IMAGE") ||
+    raise """
+    environment variable LUHACK_BASE_IMAGE is missing.
+    point this to the vm base image
+    """
 
 if !File.exists?(base_image) do
   raise """
@@ -44,11 +46,12 @@ if !File.exists?(base_image) do
   """
 end
 
-image_dir = System.get_env("LUHACK_IMAGE_DIR") ||
-      raise """
-      environment variable LUHACK_IMAGE_DIR is missing.
-      point this to a directory to place images
-      """
+image_dir =
+  System.get_env("LUHACK_IMAGE_DIR") ||
+    raise """
+    environment variable LUHACK_IMAGE_DIR is missing.
+    point this to a directory to place images
+    """
 
 if !File.exists?(image_dir) do
   raise """
@@ -56,14 +59,14 @@ if !File.exists?(image_dir) do
   """
 end
 
-admin_pass = System.get_env("ADMIN_PASS") ||
-      raise """
-      environment variable ADMIN_PASS is missing.
-      set this to a password for the admin interface
-      """
+admin_pass =
+  System.get_env("ADMIN_PASS") ||
+    raise """
+    environment variable ADMIN_PASS is missing.
+    set this to a password for the admin interface
+    """
 
-config :luhack_vm_service, LuhackVmServiceWeb.Router,
-  admin_pass: admin_pass
+config :luhack_vm_service, LuhackVmServiceWeb.Router, admin_pass: admin_pass
 
 config :luhack_vm_service, LuhackVmService.LibVirt.Config,
   xml_file: xml_file,
@@ -98,18 +101,24 @@ if config_env() == :prod do
       You can generate one by calling: mix phx.gen.secret
       """
 
+  scheme = System.get_env("PHX_SCHEME") || "http"
   host = System.get_env("PHX_HOST") || "localhost"
   port = String.to_integer(System.get_env("PORT") || "4000")
+  ext_port = String.to_integer(System.get_env("PHX_PORT") || "4000")
 
   config :luhack_vm_service, LuhackVmServiceWeb.Endpoint,
-    url: [host: host, port: port],
+    url: [scheme: scheme, host: host, port: ext_port],
     http: [
       # Enable IPv6 and bind on all interfaces.
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
       # See the documentation on https://hexdocs.pm/plug_cowboy/Plug.Cowboy.html
       # for details about using IPv6 vs IPv4 and loopback vs public addresses.
-      ip: {0, 0, 0, 0, 0, 0, 0, 0},
-      port: port
+      ip: {0, 0, 0, 0, 0, 0, 0, 1},
+      port: port,
+      compress: true
     ],
+
+    # we run behind a reverse proxy
+    check_origin: false,
     secret_key_base: secret_key_base
 end

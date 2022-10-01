@@ -3,7 +3,7 @@ defmodule LuhackVmServiceWeb.MainLive do
 
   require Logger
 
-  alias LuhackVmService.{Machines, Repo, LibVirt, Accounts.UserToken}
+  alias LuhackVmService.{Machines, Repo, LibVirt}
   alias LuhackVmService.Accounts
 
   @impl true
