@@ -21,7 +21,7 @@ defmodule LuhackVmServiceWeb.Endpoint do
     at: "/",
     from: :luhack_vm_service,
     gzip: false,
-    only: ~w(assets novnc fonts images favicon.ico robots.txt)
+    only: ~w(assets spice-web-client fonts images favicon.ico robots.txt)
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

@@ -44,7 +44,7 @@ defmodule LuhackVmServiceWeb.MainLive do
 
     socket =
       if machine_state && machine_state.state == :running do
-        do_novnc_stuff(socket, machine_state.uuid, user.machine.vnc_password)
+        do_novnc_stuff(socket, machine_state.uuid)
       else
         socket
       end
@@ -53,17 +53,17 @@ defmodule LuhackVmServiceWeb.MainLive do
     |> assign(current_user: user, machine_state: machine_state)
   end
 
-  defp do_novnc_stuff(socket, _uuid, _vnc_password) when socket.assigns.vnc_addr != nil do
+  defp do_novnc_stuff(socket, _uuid) when socket.assigns.vnc_addr != nil do
     socket
   end
 
-  defp do_novnc_stuff(socket, uuid, vnc_password) do
+  defp do_novnc_stuff(socket, uuid) do
     socket = stop_vnc_session(socket)
 
     token = Phoenix.Token.sign(LuhackVmServiceWeb.Endpoint, "vnc auth", uuid)
 
     vnc_uri =
-      Routes.static_url(socket, "/novnc/vnc.html")
+      Routes.static_url(socket, "/spice-web-client/index.html")
       |> URI.parse()
 
     vnc_addr =
@@ -74,7 +74,6 @@ defmodule LuhackVmServiceWeb.MainLive do
           host: vnc_uri.host,
           port: vnc_uri.port,
           path: "/vnc/websocket?token=#{token}",
-          password: vnc_password,
           autoconnect: true,
           reconnect: true,
           resize: "scale"

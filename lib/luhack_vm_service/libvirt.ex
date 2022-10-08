@@ -85,7 +85,6 @@ defmodule LuhackVmService.LibVirt do
     uuid = Ecto.UUID.generate()
     vm_name = make_vm_name(uuid)
     image_path = Path.join(config[:image_dir], vm_name <> ".qcow2")
-    vnc_pass = for _ <- 1..8, into: "", do: <<Enum.random('0123456789abcdef')>>
 
     with {_, 0} <-
            System.cmd(
@@ -101,17 +100,12 @@ defmodule LuhackVmService.LibVirt do
            System.cmd(
              "virt-clone",
              ~w(--original-xml=#{config[:xml_file]} -f #{image_path} -n #{vm_name} -u #{uuid} --preserve-data)
-           ),
-         {_, 0} <-
-           System.cmd(
-             "virt-xml",
-             ~w(#{uuid} --edit all --graphics password=#{vnc_pass})
-           ) do
+           )
+             do
       Machines.create_machine(user, %{
         image_path: image_path,
         last_used: DateTime.utc_now(),
         uuid: uuid,
-        vnc_password: vnc_pass
       })
     else
       err -> {:error, err}
