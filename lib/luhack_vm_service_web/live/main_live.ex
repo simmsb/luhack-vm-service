@@ -12,7 +12,8 @@ defmodule LuhackVmServiceWeb.MainLive do
 
     socket =
       socket
-      |> assign(current_user: user, vnc_addr: nil)
+      |> assign(current_user: user, vnc_addr: nil,
+                width: 1024, height: 768)
       |> refresh_machine()
 
     :timer.send_interval(5000, self(), :tick)
@@ -194,5 +195,16 @@ defmodule LuhackVmServiceWeb.MainLive do
 
         {:noreply, socket}
     end
+  end
+
+  @impl true
+  def handle_event("sync-size", %{"height" => height, "width" => width}, socket) do
+    Logger.debug("Setting client size to #{width}:#{height}")
+
+    socket =
+      socket
+      |> assign(width: width, height: height)
+
+    {:noreply, socket}
   end
 end

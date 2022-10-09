@@ -7,6 +7,9 @@
     <button class="danger-btn" phx-click="delete" data-confirm="This will delete the machine and allow you to create a new one, are you sure?">Delete</button>
   <% end %>
   <span class="info-pill">User: kali, Pass: kali</span>
+  <%= if @machine_state && @machine_state.state == :running do %>
+    <button id="fullscreen-button" class="normal-btn" phx-hook="FullscreenButton">Fullscreen</button>
+  <% end %>
   <%= if !@current_user.machine || !@machine_state || @machine_state.state != :running do %>
     <div class="flex items-center justify-center">
       <button class="normal-btn" phx-click="start_or_create">Start Kali</button>
@@ -16,7 +19,7 @@
   <div class="mx-auto drop-shadow-lg m-4">
     <%= if @vnc_addr do %>
       <div class="iframe-container">
-        <iframe class="w-11/12" src={@vnc_addr} frameborder="0" scrolling="no" onload="this.style.height=this.contentWindow.document.body.scrollHeight+'px';" allowfullscreen></iframe>
+        <iframe id="vnc-iframe" width={@width} height={@height} src={@vnc_addr} phx-hook="SizeWatcher" frameborder="0" scrolling="no" allowfullscreen></iframe>
       </div>
     <% end %>
   </div>

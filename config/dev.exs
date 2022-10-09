@@ -10,6 +10,8 @@ config :luhack_vm_service, LuhackVmService.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
+assets_dir = Path.expand("../assets", __DIR__)
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
@@ -24,11 +26,22 @@ config :luhack_vm_service, LuhackVmServiceWeb.Endpoint,
   code_reloader: true,
   debug_errors: true,
   secret_key_base: "Mx0mGtuOS+Y7uRyUoyS/Oh9tueeA7mUS4f2kRW4n1wQFosZH0s7tjWVnjxqls+yv",
-  watchers: [
-    # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
-  ]
+  watchers:
+    [
+      # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
+      esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
+      tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
+    ] ++
+      [
+        {Path.join(assets_dir, "watcher"),
+         [
+           "watchexec",
+           "-w",
+           "static",
+           "rsync -r --delete --exclude /assets static/ ../priv/static/",
+           cd: assets_dir
+         ]}
+      ]
 
 # ## SSL Support
 #
